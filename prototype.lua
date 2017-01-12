@@ -1,3 +1,8 @@
+--[[
+	share properties between instances base on prototype
+	restrict property assignment within prototype
+--]]
+
 local prototype = {}
 
 function prototype.new(proto)
