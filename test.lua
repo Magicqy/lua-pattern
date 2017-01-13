@@ -1,6 +1,12 @@
-local prototype = require('prototype')
+local function show(msg, tbl)
+	for k, v in pairs(tbl) do
+		msg = msg..string.format(' %s=%s', k, v)
+	end
+	print(msg)
+end
 
 --test case
+local prototype = require('prototype')
 local Product =
 {
 	id = 0,
@@ -8,22 +14,19 @@ local Product =
 }
 
 local book = prototype.new(Product)
-local pen = prototype.new(Product)
-
-print('book:', book.id, book.price)
-print('pen:', pen.id, pen.price)
+show('initial:', book)
 
 book.id = 1001
-pen.id = 1002
-print('book change id:', book.id, book.price)
-print('pen change id:', pen.id, pen.price)
+show('changed:', book)
+
+book.author = 'jack'
+show('undefined:', book)
 
 book:reset()
-print('book reset:', book.id, book.price)
+show('reset:', book)
 
-pen:update({price = 20})
-print('pen update:', pen.id, pen.price)
+book:update({price = 80, author = 'jack'})
+show('update:', book)
 
-book.name = 'cookbook'
-book.author = 'jack'
-print('undefined:', book.name, pen.author)
+book:reset('price')
+show('reset:', book)

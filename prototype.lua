@@ -14,8 +14,9 @@ function prototype.new(proto)
 			return v
 		end,
 		__newindex = function(t, k, v)
-			if proto[k] then
-				rawset(t, k, v)
+			local pv = proto[k]
+			if pv ~= nil then
+				if pv ~= v then rawset(t, k, v) end
 			else
 				print('key not found in prototype:', k, v)
 			end
@@ -23,9 +24,13 @@ function prototype.new(proto)
 	})
 end
 
-function prototype:reset()
-	for k, v in pairs(self) do
-		rawset(self, k, nil)
+function prototype:reset(key)
+	if key then
+		rawset(self, key, nil)
+	else
+		for k, v in pairs(self) do
+			rawset(self, k, nil)
+		end
 	end
 end
 
