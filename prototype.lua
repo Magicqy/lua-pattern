@@ -1,6 +1,10 @@
 --[[
 	share properties between instances base on prototype
-	restrict property assignment within prototype
+	restrict properties accessable within prototype
+	
+	note:
+		override prototype property by set a not-nil value, set nil to reset
+		default value in prototype can't be nil
 --]]
 
 local prototype = {}
@@ -17,20 +21,14 @@ function prototype.new(proto)
 			local pv = proto[k]
 			if pv ~= nil then
 				if pv ~= v then rawset(t, k, v) end
-			else
-				print('key not found in prototype:', k, v)
 			end
 		end,
 	})
 end
 
-function prototype:reset(key)
-	if key then
-		rawset(self, key, nil)
-	else
-		for k, v in pairs(self) do
-			rawset(self, k, nil)
-		end
+function prototype:reset()
+	for k, v in pairs(self) do
+		rawset(self, k, nil)
 	end
 end
 

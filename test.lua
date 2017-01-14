@@ -14,19 +14,19 @@ local Product =
 }
 
 local book = prototype.new(Product)
-show('initial:', book)
+show('all properties inherited from prototype:', book)
 
 book.id = 1001
-show('changed:', book)
+show('override property:', book)
+
+book.id = nil
+show('reset property to default value:', book)
 
 book.author = 'jack'
-show('undefined:', book)
+show('access undefined property:', book)
+
+book:update({id = 2001, price = 80})
+show('update properties:', book)
 
 book:reset()
-show('reset:', book)
-
-book:update({price = 80, author = 'jack'})
-show('update:', book)
-
-book:reset('price')
-show('reset:', book)
+show('reset all override properties:', book)
