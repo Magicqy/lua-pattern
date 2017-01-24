@@ -2,15 +2,15 @@ local class = require('getter-setter')
 
 local Hero = class('Hero')
 
-function Hero.get:level()
+function Hero.__get:level()
 	return self._level
 end
 
-function Hero.set:level(val)
+function Hero.__set:level(val)
 	self._level = val
 end
 
-function Hero.get:attack()
+function Hero.__get:attack()
 	return 10*self.level
 end
 
@@ -24,9 +24,9 @@ local h = Hero.new(5)
 print('---class---')
 for k,v in pairs(Hero) do print(k,v) end
 print('---getter---')
-for k,v in pairs(Hero.get) do print(k,v) end
+for k,v in pairs(Hero.__get) do print(k,v) end
 print('---setter---')
-for k,v in pairs(Hero.set) do print(k,v) end
+for k,v in pairs(Hero.__set) do print(k,v) end
 
 print('---property---')
 print(h.level, h.attack)

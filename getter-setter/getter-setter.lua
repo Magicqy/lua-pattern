@@ -2,54 +2,56 @@
 	implict replace direct field access by getter and setter function call
 --]]
 
+local function index(classType, self, key)
+    local val = classType[key]
+    if val == nil then
+	    local getFunc = classType.__get[key]
+	    if getFunc ~= nil then
+	        val = getFunc(self)
+	    end
+    end
+    return val
+end
+
 local function class(className, super)
-	local getter = {}
-	local setter = {}
-	local cls =
+	local classType =
 	{
 		__className = className,
-		get = getter,
-		set = setter,
+		__super = super,
+		__get = {},
+		__set = {},
 	}
 
-	function cls.__index(self, key)
-	    local val = cls[key]
-	    if val then
-	    	return val
-	    end
-	    
-	    local getFunc = getter[key]
-	    if getFunc then
-	        return getFunc(self)
-	    end
-
-	    return nil
+	function classType.__index(self, key)
+		local val = index(classType, self, key)
+		if val == nil and classType.__super then
+			val = index(classType.__super, self, key)
+		end
+		return val
 	end
 
-	function cls.__newindex(self, key, val)
-	    local setFunc = setter[key]
+	function classType.__newindex(self, key, val)
+	    local setFunc = classType.__set[key]
+	    if setFunc == nil and classType.__supper then
+	    	setFunc = classType.__super.__set[key]
+	    end
 	    if setFunc then
 	        setFunc(self, val)
-	        return
+	    else
+	    	rawset(self, key, val)
 	    end
-
-	    if getter[key] then
-	        assert(false, "readonly property")
-	    end
-	    
-		rawset(self, key, val)
 	end
 
-    function cls.new(...)
-        local inst = setmetatable({}, cls)
-        local ctor = cls[cls.__className]
+    function classType.new(...)
+        local self = setmetatable({}, classType)
+        local ctor = classType[classType.__className]
         if ctor and type(ctor) == 'function' then
-        	ctor(inst, ...)
+        	ctor(self, ...)
         end
-        return inst
+        return self
     end
 
-    return cls
+    return classType
 end
 
 return class
