@@ -1,2 +1,2 @@
-# lua-prototype
-a lua pattern: prototype
+# lua-patterns
+collection of patterns in lua
