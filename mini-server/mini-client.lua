@@ -10,7 +10,7 @@ require('defines')
 
 local function sendPacket(client, opcode, fmt, ...)
     local shakeReq = 0
-    local pack = string.pack('HiP'..fmt, opcode, shakeReq, fmt, ...)
+    local pack = string.pack('Hi'..fmt, opcode, shakeReq, ...)
     pack = string.pack('>H<A', #pack, pack)
     return client:send(pack)
 end
@@ -26,8 +26,8 @@ print('connection established on', client:getpeername())
 while true do
     print('input message to send:')
     local input = io.read()
-    local index, error = sendPacket(client, CMSG_MINI, 'P', input)
-    --local index, error = sendPacket(client, CMSG_PING, 'I', 1)
+    local index, error = #input > 0 and sendPacket(client, CMSG_MINI, 'PP', 'P', input)
+        or sendPacket(client, CMSG_PING, 'I', os.time())
     if index ~= nil then
         print(index, 'byte was sent')
     else
