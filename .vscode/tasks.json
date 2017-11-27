@@ -6,7 +6,7 @@
         {
             "label": "def_task_build",
             "type": "process",
-            "command": "D:\\DevTools\\LuaDist\\bin\\lua.exe",
+            "command": "D:\\DevTools\\luadist\\bin\\lua.exe",
             "osx": {
                 "command" : "/Applications/LuaDist/bin/lua"
             },
@@ -25,7 +25,7 @@
         {
             "label": "luadist",
             "type": "process",
-            "command": "D:\\DevTools\\LuaDist\\bin\\lua.exe",
+            "command": "D:\\DevTools\\luadist\\bin\\lua.exe",
             "osx": {
                 "command" : "/Applications/LuaDist/bin/lua"
             },
@@ -35,10 +35,7 @@
             "options": {
                 "cwd": "${fileDirname}"
             },
-            "problemMatcher": [],
-            "presentation": {
-                "panel": "new"
-            }
+            "problemMatcher": []
         },
         {
             "label": "lua51",

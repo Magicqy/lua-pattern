@@ -38,7 +38,8 @@ end
 --mini server framework
 local host = host or "localhost"
 local port = port or 8686
-local master = assert(socket.tcp())
+local ipv6 = true
+local master = assert(ipv6 and socket.tcp6() or socket.tcp4())
 assert(master:bind(host, port))
 assert(master:listen())
 

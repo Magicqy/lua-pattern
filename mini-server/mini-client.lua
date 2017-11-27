@@ -15,10 +15,11 @@ local function sendPacket(client, opcode, fmt, ...)
     return client:send(pack)
 end
 
---mini client framework
+--mini client framework 
 local host = host or "localhost"
 local port = port or 8686
-local master = assert(socket.tcp())
+local ipv6 = true
+local master = assert(ipv6 and socket.tcp6() or socket.tcp4())
 assert(master:connect(host, port))
 local client = master
 print('connection established on', client:getpeername())
