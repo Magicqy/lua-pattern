@@ -36,10 +36,9 @@ local function unpackPacket(client, packData, packSize)
 end
 
 --mini server framework
-local host = host or "localhost"
+local host = host or "*"
 local port = port or 8686
-local ipv6 = true
-local master = assert(ipv6 and socket.tcp6() or socket.tcp())
+local master = assert(socket.tcp())
 assert(master:bind(host, port))
 assert(master:listen())
 

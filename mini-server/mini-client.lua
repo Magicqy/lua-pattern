@@ -18,8 +18,7 @@ end
 --mini client framework 
 local host = host or "localhost"
 local port = port or 8686
-local ipv6 = true
-local master = assert(ipv6 and socket.tcp6() or socket.tcp())
+local master = assert(socket.tcp())
 assert(master:connect(host, port))
 local client = master
 print('connection established on', client:getpeername())
