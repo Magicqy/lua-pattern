@@ -39,7 +39,7 @@ end
 local host = host or "localhost"
 local port = port or 8686
 local ipv6 = true
-local master = assert(ipv6 and socket.tcp6() or socket.tcp4())
+local master = assert(ipv6 and socket.tcp6() or socket.tcp())
 assert(master:bind(host, port))
 assert(master:listen())
 
