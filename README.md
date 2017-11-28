@@ -2,7 +2,7 @@
 lua code snippets
 
 ## lua-patterns
-patterns or tricks in lua language
+lua patterns and tricks
 
 ## mini-server
 mini server framework based on luasocket
