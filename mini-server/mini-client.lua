@@ -8,31 +8,25 @@ local socket = require("socket")
 require('pack')
 require('defines')
 
-local function sendPacket(client, opcode, fmt, ...)
+local function sendPacket(sock, opcode, fmt, ...)
     local shakeReq = 0
     local pack = string.pack('Hi'..fmt, opcode, shakeReq, ...)
     pack = string.pack('>H<A', #pack, pack)
-    return client:send(pack)
+    return sock:send(pack)
 end
 
 --mini client framework 
 local host = host or "localhost"
-local port = port or 8686
-local master = assert(socket.tcp())
-assert(master:connect(host, port))
-local client = master
-print('connection established on', client:getpeername())
+local port = port or 868600
+local sock = assert(socket.connect(host, port))
+print('connection established on', sock:getpeername())
 
 while true do
     print('input message to send:')
     local input = io.read()
-    local index, error = #input > 0 and sendPacket(client, CMSG_MINI, 'PP', 'P', input)
-        or sendPacket(client, CMSG_PING, 'I', os.time())
-    if index ~= nil then
-        print(index, 'byte was sent')
+    if #input > 0 then
+        sendPacket(sock, CMSG_MINI, 'PP', 'P', input)
     else
-        print(error)
-        client:close()
-        break
+        sendPacket(sock, CMSG_PING, 'I', os.time())
     end
 end
