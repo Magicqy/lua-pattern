@@ -20,15 +20,16 @@ local function merge(pathDst, urlDst, urlSrc)
     end
 end
 
-local function sync(path, src, ...)
+local function sync(wc, src, ...)
+    local pathDst = PATH_BASE..wc
     local urlSrc = URL_BASE..src
     for _,dst in ipairs({...}) do
         local urlDst = URL_BASE..dst
         print(string.format('#Sync [%s] => [%s]', src, dst))
-        local mergeRev = merge(path, urlDst, urlSrc)
+        local mergeRev = merge(pathDst, urlDst, urlSrc)
         if mergeRev then
             local msg = string.format('"sync with %s, %s"', src, mergeRev)
-            exec('svn commit -m '..msg..' '..path)
+            exec('svn commit -m '..msg..' '..pathDst)
             print('#Sync Finished')
         else
             print('#Sync Nothing')
