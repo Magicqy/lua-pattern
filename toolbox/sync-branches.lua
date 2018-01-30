@@ -1,28 +1,41 @@
-local function exec(prog, pattern)
+local function exec(prog)
     print('#Execute', prog)
-    local stdout = io.popen(prog)
-    local result = stdout:read('*a')
+    local result = io.popen(prog):read('*a')
     print(result)
     return result
 end
 
-local function merge(pathDst, urlDst, urlSrc)
+local function merge(pathDst, urlDst, urlSrc, revRanges)
     exec('svn revert -R '..pathDst)
     exec('svn switch '..urlDst..' '..pathDst)
     exec('svn up '..pathDst)
-    local result = exec('svn merge '..urlSrc..' '..pathDst)
-    local ibeg, iend = string.find(result, 'Merging r%d+ through r%d+')
-    if ibeg and iend then
-        return string.sub(result, ibeg, iend)
+
+    local prog = 'svn merge '..urlSrc..' '..pathDst
+    if revRanges then
+        if type(revRanges) == 'table' and #revRanges > 0 then
+            prog = prog..' -c '..table.concat(revRanges, ',')
+        elseif type(revRanges) == 'number' and revRanges > 0 then
+            prog = prog..' -r '..revRanges..':HEAD'
+        end
     end
+
+    local result = exec(prog)
+    local matched = {}
+    for cap in string.gmatch(result, 'Merging (r%d+ through r%d+) into') do
+        table.insert(matched, cap)
+    end
+    for cap in string.gmatch(result, 'Merging (r%d+) into') do
+        table.insert(matched, cap)
+    end
+    return #matched > 0 and 'Merging '..table.concat(matched, ',') or nil
 end
 
-local function sync(wcpath, urlbase, src, ...)
+local function sync(wcpath, urlbase, src, revRanges, ...)
     local urlSrc = urlbase..src
     for _,dst in ipairs({...}) do
         local urlDst = urlbase..dst
         print(string.format('#Sync [%s] => [%s]', src, dst))
-        local mergeRev = merge(wcpath, urlDst, urlSrc)
+        local mergeRev = merge(wcpath, urlDst, urlSrc, revRanges)
         if mergeRev then
             local msg = string.format('"sync with %s, %s"', src, mergeRev)
             exec('svn commit -m '..msg..' '..wcpath)
@@ -33,4 +46,4 @@ local function sync(wcpath, urlbase, src, ...)
     end
 end
 
---sync(YOUR_WORKING_COPY_PATH, YOUR_SVN_URL_BASE, SRC_BRANCH, TARGET_BRANCH_1, TARGET_BRANCH_2, ...)
+--sync(YOUR_WORKING_COPY_PATH, YOUR_SVN_URL_BASE, SRC_BRANCH, REVISION_RANGES, TARGET_BRANCH_1, TARGET_BRANCH_2, ...)
