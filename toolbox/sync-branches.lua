@@ -1,6 +1,3 @@
-local PATH_BASE = SYNC_PATH_BASE or 'YOUR_PROJ_PATH_BASE'
-local URL_BASE = SYNC_URL_BASE or 'YOUR_REPO_URL_BASE'
-
 local function exec(prog, pattern)
     print('#Execute', prog)
     local stdout = io.popen(prog)
@@ -20,16 +17,15 @@ local function merge(pathDst, urlDst, urlSrc)
     end
 end
 
-local function sync(wc, src, ...)
-    local pathDst = PATH_BASE..wc
-    local urlSrc = URL_BASE..src
+local function sync(urlbase, wcpath, src, ...)
+    local urlSrc = urlbase..src
     for _,dst in ipairs({...}) do
-        local urlDst = URL_BASE..dst
+        local urlDst = urlbase..dst
         print(string.format('#Sync [%s] => [%s]', src, dst))
-        local mergeRev = merge(pathDst, urlDst, urlSrc)
+        local mergeRev = merge(wcpath, urlDst, urlSrc)
         if mergeRev then
             local msg = string.format('"sync with %s, %s"', src, mergeRev)
-            exec('svn commit -m '..msg..' '..pathDst)
+            exec('svn commit -m '..msg..' '..wcpath)
             print('#Sync Finished')
         else
             print('#Sync Nothing')
@@ -37,4 +33,4 @@ local function sync(wc, src, ...)
     end
 end
 
-sync('WORKING_COPY_DIR', 'SYNC_SRC_BRANCH', 'SYNC_DST_BRANCH_1', 'SYNC_DST_BRANCH_2')
+--sync('YOUR_SVN_URL_BASE, 'YOUR_WORKING_COPY_PATH', 'SRC_BRANCH', 'TARGET_BRANCH_1', 'TARGET_BRANCH_2', ...)
