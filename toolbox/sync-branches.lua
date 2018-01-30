@@ -17,7 +17,7 @@ local function merge(pathDst, urlDst, urlSrc)
     end
 end
 
-local function sync(urlbase, wcpath, src, ...)
+local function sync(wcpath, urlbase, src, ...)
     local urlSrc = urlbase..src
     for _,dst in ipairs({...}) do
         local urlDst = urlbase..dst
@@ -33,4 +33,4 @@ local function sync(urlbase, wcpath, src, ...)
     end
 end
 
---sync(YOUR_SVN_URL_BASE, YOUR_WORKING_COPY_PATH, SRC_BRANCH, TARGET_BRANCH_1, TARGET_BRANCH_2, ...)
+--sync(YOUR_WORKING_COPY_PATH, YOUR_SVN_URL_BASE, SRC_BRANCH, TARGET_BRANCH_1, TARGET_BRANCH_2, ...)
