@@ -11,11 +11,13 @@ local function merge(pathDst, urlDst, urlSrc, revRanges)
     exec('svn up '..pathDst)
 
     local prog = 'svn merge '..urlSrc..' '..pathDst
-    if revRanges then
-        if type(revRanges) == 'table' and #revRanges > 0 then
-            prog = prog..' -c '..table.concat(revRanges, ',')
-        elseif type(revRanges) == 'number' and revRanges > 0 then
-            prog = prog..' -r '..revRanges..':HEAD'
+    if revRanges and type(revRanges) == 'table' and #revRanges > 0 then
+        for _,rev in ipairs(revRanges) do
+            if type(rev) == 'number' then
+                prog = prog..' -c '..rev
+            elseif type(rev) == 'string' then
+                prog = prog..' -r '..rev
+            end
         end
     end
 
