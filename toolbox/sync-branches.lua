@@ -5,12 +5,12 @@ local function exec(prog)
     return result
 end
 
-local function merge(pathDst, urlDst, urlSrc, revRanges)
+local function merge(pathDst, urlDst, urlSrc, revRanges, accept)
     exec('svn revert -R '..pathDst)
     exec('svn switch '..urlDst..' '..pathDst)
     exec('svn up '..pathDst)
 
-    local prog = 'svn merge '..urlSrc..' '..pathDst
+    local prog = 'svn merge --accept '..(accept or 'p')..' '..urlSrc..' '..pathDst
     if revRanges and type(revRanges) == 'table' and #revRanges > 0 then
         for _,rev in ipairs(revRanges) do
             if type(rev) == 'number' then
@@ -32,20 +32,27 @@ local function merge(pathDst, urlDst, urlSrc, revRanges)
     return #matched > 0 and 'Merging '..table.concat(matched, ',') or nil
 end
 
-local function sync(wcpath, urlbase, src, revRanges, ...)
-    local urlSrc = urlbase..src
-    for _,dst in ipairs({...}) do
-        local urlDst = urlbase..dst
-        print(string.format('#Sync [%s] => [%s]', src, dst))
-        local mergeRev = merge(wcpath, urlDst, urlSrc, revRanges)
-        if mergeRev then
-            local msg = string.format('"sync with %s, %s"', src, mergeRev)
-            exec('svn commit -m '..msg..' '..wcpath)
-            print('#Sync Finished')
-        else
-            print('#Sync Nothing')
-        end
+local function sync(wcPath, urlBase, srcBranch, dstBranch, revRanges, accept)
+    local urlSrc = urlBase..srcBranch
+    local urlDst = urlBase..dstBranch
+    print(string.format('#Sync [%s] => [%s]', srcBranch, dstBranch))
+    local mergeRev = merge(wcPath, urlDst, urlSrc, revRanges, accept)
+    if mergeRev then
+        local msg = string.format('"sync with %s, %s"', srcBranch, mergeRev)
+        exec('svn commit -m '..msg..' '..wcPath)
+        print('#Sync Finished')
+    else
+        print('#Sync Nothing')
     end
 end
 
---sync(YOUR_WORKING_COPY_PATH, YOUR_SVN_URL_BASE, SRC_BRANCH, REVISION_RANGES, TARGET_BRANCH_1, TARGET_BRANCH_2, ...)
+
+--[[
+local WORKING_COPY_PATH = '/your/path/repo'
+local SVN_URL_BASE = 'https://xxx/xxx/xxx'
+local SRC_BRANCH = 'trunk'
+local DST_BRANCH = 'branches/xxx'
+local REVISION_RANGES = {101,102,'105-108'}
+local CONFLICT_ACCEPT = 'tf'
+sync(WORKING_COPY_PATH, SVN_URL_BASE, SRC_BRANCH, DST_BRANCH, REVISION_RANGES, CONFLICT_ACCEPT)
+--]]
