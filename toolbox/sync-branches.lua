@@ -6,9 +6,10 @@ local function exec(prog)
 end
 
 local function merge(pathDst, urlDst, urlSrc, revRanges, accept)
+    exec('svn cleanup --include-externals '..pathDst)
     exec('svn revert -R '..pathDst)
     exec('svn switch '..urlDst..' '..pathDst)
-    exec('svn up '..pathDst)
+    exec('svn update '..pathDst)
 
     local prog = 'svn merge --accept '..(accept or 'p')..' '..urlSrc..' '..pathDst
     if revRanges and type(revRanges) == 'table' and #revRanges > 0 then
@@ -49,10 +50,12 @@ end
 
 --[[
 local WORKING_COPY_PATH = '/your/path/repo'
-local SVN_URL_BASE = 'https://xxx/xxx/xxx'
+local SVN_URL_BASE = 'https://svn/repo/xxx'
 local SRC_BRANCH = 'trunk'
 local DST_BRANCH = 'branches/xxx'
-local REVISION_RANGES = {101,102,'105-108'}
+local REVISION_RANGES = {101,102,'105:108'}
 local CONFLICT_ACCEPT = 'tf'
 sync(WORKING_COPY_PATH, SVN_URL_BASE, SRC_BRANCH, DST_BRANCH, REVISION_RANGES, CONFLICT_ACCEPT)
 --]]
+
+return sync
