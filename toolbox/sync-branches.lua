@@ -7,9 +7,9 @@ end
 
 local function merge(pathDst, urlDst, urlSrc, revRanges, accept)
     exec('svn cleanup --include-externals '..pathDst)
-    exec('svn revert -R '..pathDst)
+    exec('svn revert -q -R '..pathDst)
     exec('svn switch '..urlDst..' '..pathDst)
-    exec('svn update '..pathDst)
+    exec('svn update -q '..pathDst)
 
     local prog = 'svn merge --accept '..(accept or 'p')..' '..urlSrc..' '..pathDst
     if revRanges and type(revRanges) == 'table' and #revRanges > 0 then
@@ -30,7 +30,14 @@ local function merge(pathDst, urlDst, urlSrc, revRanges, accept)
     for cap in string.gmatch(result, 'Merging (r%d+) into') do
         table.insert(matched, cap)
     end
-    return #matched > 0 and 'Merging '..table.concat(matched, ',') or nil
+
+    --resolve check there is no conflict
+    local conflict = exec('svn resolve -R '..pathDst)
+    if #conflict == 0 and #matched > 0 then
+        return 'Merging '..table.concat(matched, ',')
+    else
+        return nil
+    end
 end
 
 local function sync(wcPath, urlBase, srcBranch, dstBranch, revRanges, accept)
@@ -40,7 +47,7 @@ local function sync(wcPath, urlBase, srcBranch, dstBranch, revRanges, accept)
     local mergeRev = merge(wcPath, urlDst, urlSrc, revRanges, accept)
     if mergeRev then
         local msg = string.format('"sync with %s, %s"', srcBranch, mergeRev)
-        exec('svn commit -m '..msg..' '..wcPath)
+        exec('svn commit -q -m '..msg..' '..wcPath)
         print('#Sync Finished')
     else
         print('#Sync Nothing')
