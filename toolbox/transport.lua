@@ -67,7 +67,6 @@ local function repo_revert(repoUrl, wcpath, revBegin, revEnd)
 end
 
 return {
-    transport = repo_transport
-    revert = repo_revert
+    transport = repo_transport,
+    revert = repo_revert,
 }
-
