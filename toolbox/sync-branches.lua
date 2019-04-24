@@ -47,6 +47,7 @@ local function sync(wcPath, urlBase, srcBranch, dstBranch, revRanges, accept)
     local mergeRev = merge(wcPath, urlDst, urlSrc, revRanges, accept)
     if mergeRev then
         local msg = string.format('"sync with %s, %s"', srcBranch, mergeRev)
+        print('#Sync summary:', msg)
         exec('svn commit -q -m '..msg..' '..wcPath)
         print('#Sync Finished')
     else
