@@ -12,6 +12,17 @@ local function execute(cmd)
     return exitcode
 end
 
+--get and trim log message
+local function repo_logFile(repoUrl, repoName, rev)
+    local result = process("svn log -c "..rev.." "..repoUrl)
+    local logContent = string.gsub(result, "^(%-+\r?\n)(.+)(\r?\n%-+\r?\n)$", "%2")
+    local logFileName = repoName..rev..'.txt'
+    local logFile = io.open(logFileName, "w")
+    logFile:write(logContent)
+    logFile:close()
+    return logFileName
+end
+
 local function repo_transport(sourceUrl, targetUrl, wcpath, revBegin, revEnd)
     --prepare working copy path
     execute("svn checkout --force --ignore-externals "..targetUrl.." "..wcpath)
@@ -40,19 +51,14 @@ local function repo_transport(sourceUrl, targetUrl, wcpath, revBegin, revEnd)
     --merge and commit
     for rev = revBegin, revEnd do
         print("transport revision:", rev)
-
-        --get and trim log message
-        local result = process("svn log -c "..rev.." "..sourceUrl)
-        local logContent = string.gsub(result, "^(%-+\r?\n)(.+)(\r?\n%-+\r?\n)$", "%2")
-        local logFileName = repoName..rev..'.txt'
-        local logFile = io.open(logFileName, "w")
-        logFile:write(logContent)
-        logFile:close()
-
+        
+        --read log message and save to temp file
+        local logFileName = repo_logFile(sourceUrl, repoName, rev)
+        --merge and commit
         execute("svn update -q --ignore-externals "..wcpath)
         execute("svn merge -q -c "..rev.." "..sourceUrl.." "..wcpath)
         execute("svn commit -q "..wcpath.." -F "..logFileName)
-
+        --cleanup temp log file
         os.remove(logFileName)
         print()
     end
@@ -68,5 +74,6 @@ end
 
 return {
     transport = repo_transport,
+    logFile = repo_logFile,
     revert = repo_revert,
 }
