@@ -17,7 +17,7 @@ local function repo_logFile(repoUrl, repoName, rev)
     local result = process("svn log -c "..rev.." "..repoUrl)
     local logContent = string.gsub(result, "^(%-+\r?\n)(.+)(\r?\n%-+\r?\n)$", "%2")
     local logFileName = repoName..rev..'.txt'
-    local logFile = io.open(logFileName, "w")
+    local logFile = io.open(logFileName, "w+")
     logFile:write(logContent)
     logFile:close()
     return logFileName
